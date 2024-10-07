@@ -1,0 +1,23 @@
+.menu-button {
+    margin-right: 16px;
+}
+
+.title {
+    flex-grow: 1;
+}
+
+.navbar-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.navbar-button {
+    color: white !important;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.navbar-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
