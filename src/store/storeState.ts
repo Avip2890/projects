@@ -11,7 +11,7 @@ interface StoreState {
     addCourse: (course: Course) => void;
     updateCourse: (id: string, updatedCourse: Partial<Course>) => void;
     removeCourse: (id: string) => void;
-    addStudent: (student: Omit<Students, 'id'>) => void;
+    addStudent: (student: Omit<Students, 'id'>) => string; // החזר ID
     updateStudent: (id: string, updatedStudent: Partial<Students>) => void;
     removeStudent: (id: string) => void;
     enrollStudent: (enrollment: Enrollments) => void;
@@ -19,7 +19,6 @@ interface StoreState {
 }
 
 const useStore = create<StoreState>((set) => {
-
     const generateRandomId = () => {
         return Math.random().toString(36).substr(2, 8);
     };
@@ -48,22 +47,20 @@ const useStore = create<StoreState>((set) => {
         })),
 
         // הוספת סטודנט
-        addStudent: (student: Omit<Students, 'id'>) => set((state) => {
+        addStudent: (student: Omit<Students, 'id'>) => {
             const studentWithId = { id: generateRandomId(), ...student }; // יצירת סטודנט עם ID אקראי
-            return {
+            set((state) => ({
                 students: [...state.students, studentWithId],
-            };
-        }),
+            }));
+            return studentWithId.id; // החזר את ה-ID של הסטודנט
+        },
 
         // עדכון סטודנט
-        updateStudent: (id: string, updatedStudent: Partial<Students>) => set((state) => {
-            console.log("Updating student in store:", id, updatedStudent);
-            return {
-                students: state.students.map((student) =>
-                    student.id === id ? { ...student, ...updatedStudent } : student
-                ),
-            };
-        }),
+        updateStudent: (id: string, updatedStudent: Partial<Students>) => set((state) => ({
+            students: state.students.map((student) =>
+                student.id === id ? { ...student, ...updatedStudent } : student
+            ),
+        })),
 
         // מחיקת סטודנט
         removeStudent: (id: string) => set((state) => ({

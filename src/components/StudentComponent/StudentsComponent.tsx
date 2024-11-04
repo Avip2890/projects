@@ -1,6 +1,6 @@
 import useStore from "../../store/storeState";
-import React, {useEffect, useState} from "react";
-import {Students} from "../../interfaces/Student-interface";
+import React, { useEffect, useState } from "react";
+import { Students } from "../../interfaces/Student-interface";
 import {
     TextField,
     Button,
@@ -10,16 +10,30 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Paper
+    Paper,
+    Snackbar,
+    Alert,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
 } from "@mui/material";
 
-const StudentsComponent = () => {
-    const {students, addStudent, updateStudent, removeStudent} = useStore();
+interface StudentsComponentProps {
+    students: Students[];
+}
+
+const StudentsComponent = ({ students }: StudentsComponentProps) => {
+    const { addStudent, updateStudent, removeStudent } = useStore();
     const [editingStudent, setEditingStudent] = useState<Students | null>(null);
     const [studentName, setStudentName] = useState('');
     const [studentEmail, setStudentEmail] = useState('');
     const [studentCity, setStudentCity] = useState('');
     const [studentEnrollmentDate, setStudentEnrollmentDate] = useState<Date | null>(null);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     useEffect(() => {
         if (editingStudent) {
@@ -27,6 +41,7 @@ const StudentsComponent = () => {
             setStudentEmail(editingStudent.email);
             setStudentCity(editingStudent.city);
             setStudentEnrollmentDate(editingStudent.enrollmentDate);
+            setDialogOpen(true);
         } else {
             resetForm();
         }
@@ -43,18 +58,27 @@ const StudentsComponent = () => {
         };
 
         if (editingStudent && editingStudent.id) {
-
             updateStudent(editingStudent.id, student);
+            setSnackbarMessage('Student updated successfully!');
+            setSnackbarSeverity('success');
             setEditingStudent(null);
         } else {
-
             addStudent(student);
+            setSnackbarMessage('Student added successfully!');
+            setSnackbarSeverity('success');
         }
 
-
+        setSnackbarOpen(true);
+        setDialogOpen(false);
         resetForm();
     };
 
+    const handleDelete = (id: string) => {
+        removeStudent(id);
+        setSnackbarMessage('Student removed successfully!');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+    };
 
     const resetForm = () => {
         setStudentName('');
@@ -63,48 +87,23 @@ const StudentsComponent = () => {
         setStudentEnrollmentDate(new Date());
     };
 
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
+
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+        setEditingStudent(null);
+        resetForm();
+    };
 
     return (
         <div>
             <h1>Student Management</h1>
-            <form onSubmit={handleSubmit} className="student-form">
-                <TextField
-                    label="Name"
-                    value={studentName}
-                    onChange={(e) => setStudentName(e.target.value)}
-                    required
-                    variant="outlined"
-                    className="student-input"
-                />
-                <TextField
-                    label="Email"
-                    value={studentEmail}
-                    onChange={(e) => setStudentEmail(e.target.value)}
-                    required
-                    variant="outlined"
-                    className="student-input"
-                />
-                <TextField
-                    label="City"
-                    value={studentCity}
-                    onChange={(e) => setStudentCity(e.target.value)}
-                    required
-                    variant="outlined"
-                    className="student-input"
-                />
-                <TextField
-                    label="Enrollment Date"
-                    type="date"
-                    value={studentEnrollmentDate ? studentEnrollmentDate.toISOString().split('T')[0] : ''}
-                    onChange={(e) => setStudentEnrollmentDate(new Date(e.target.value))}
-                    InputLabelProps={{shrink: true}}
-                    variant="outlined"
-                    className="student-input"
-                />
-                <Button type="submit" variant="contained" color="primary">
-                    {editingStudent ? 'Update' : 'Add'}
-                </Button>
-            </form>
+            <Button variant="contained" color="primary" onClick={() => setDialogOpen(true)}>
+                Add Student
+            </Button>
+
             <TableContainer component={Paper}>
                 <Table>
                     <TableHead>
@@ -128,16 +127,11 @@ const StudentsComponent = () => {
                                         onClick={() => setEditingStudent(student)}
                                         variant="outlined"
                                         color="primary"
-                                        className="action-button"
                                     >
                                         Edit
                                     </Button>
                                     <Button
-                                        onClick={() => {
-                                            if (student.id) {
-                                                removeStudent(student.id);
-                                            }
-                                        }}
+                                        onClick={() => handleDelete(student.id || '')}
                                         variant="outlined"
                                         color="secondary"
                                     >
@@ -147,13 +141,66 @@ const StudentsComponent = () => {
                             </TableRow>
                         ))}
                     </TableBody>
-
-
                 </Table>
             </TableContainer>
+
+
+            <Dialog open={dialogOpen} onClose={handleDialogClose}>
+                <DialogTitle>{editingStudent ? 'Edit Student' : 'Add Student'}</DialogTitle>
+                <form onSubmit={handleSubmit}>
+                    <DialogContent>
+                        <TextField
+                            label="Name"
+                            value={studentName}
+                            onChange={(e) => setStudentName(e.target.value)}
+                            required
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Email"
+                            value={studentEmail}
+                            onChange={(e) => setStudentEmail(e.target.value)}
+                            required
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="City"
+                            value={studentCity}
+                            onChange={(e) => setStudentCity(e.target.value)}
+                            required
+                            fullWidth
+                            margin="normal"
+                        />
+                        <TextField
+                            label="Enrollment Date"
+                            type="date"
+                            value={studentEnrollmentDate ? studentEnrollmentDate.toISOString().split('T')[0] : ''}
+                            onChange={(e) => setStudentEnrollmentDate(new Date(e.target.value))}
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                            margin="normal"
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDialogClose} color="secondary">
+                            Cancel
+                        </Button>
+                        <Button type="submit" variant="contained" color="primary">
+                            {editingStudent ? 'Update' : 'Add'}
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
 
 export default StudentsComponent;
-

@@ -1,0 +1,20 @@
+
+.search-filter {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.search-filter .MuiTextField-root {
+    margin-right: 10px;
+    flex: 1;
+}
+
+.search-filter button {
+    padding: 10px 20px;
+}
+
+
+.search-filter button:hover {
+    background-color: #1976d2;
+}

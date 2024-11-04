@@ -1,12 +1,10 @@
-.menu-button {
-    margin-right: 16px;
+.navbar-user-email {
+    color: white;
+    margin-right: auto;
 }
 
-.title {
-    flex-grow: 1;
-}
-
-.navbar-buttons {
+.navbar-buttons,
+.auth-buttons {
     display: flex;
     gap: 16px;
 }

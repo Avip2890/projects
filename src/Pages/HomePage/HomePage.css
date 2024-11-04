@@ -1,0 +1,12 @@
+.course-select {
+    /* הוספת סגנונות לשדה הבחירה */
+    margin-top: 16px;
+}
+
+.register-button {
+    margin-top: 16px;
+}
+
+.error-message {
+    color: red;
+}
